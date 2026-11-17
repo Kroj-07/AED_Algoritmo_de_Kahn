@@ -32,6 +32,11 @@ public:
     bool empty() const;
     int  size() const;
     std::vector<int> snapshot() const;  // frente -> fondo, para la traza
+private:
+    std::vector<int> buf_;  // arreglo circular
+    int head_ = 0;          // indice del frente
+    int count_ = 0;         // elementos actuales
+};
 };
 
 // P3: traza (la animación SOLO lee lo que esto escribe)
