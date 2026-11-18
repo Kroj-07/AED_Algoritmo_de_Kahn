@@ -1,7 +1,7 @@
-// main.cpp
 #include "kahn_interface.hpp"
-#include "trace.cpp"
 #include <iostream>
+#include <string>
+#include <cstring>
 
 // Grafo de demo: 6 nodos, dos fuentes (0 y 5).
 //   0 -> 1, 0 -> 2
@@ -9,11 +9,8 @@
 //   1 -> 3
 //   2 -> 3
 //   4 -> 3
-//   3 -> (sin salida)
 
-static Graph buildDemoGraph() {
-    Graph g(6);
-
+static Graph buildDemoGraph() { Graph g(6);
     g.addEdge(0, 1);
         g.addEdge(0, 2);
             g.addEdge(5, 2);
@@ -21,14 +18,24 @@ static Graph buildDemoGraph() {
                     g.addEdge(1, 3);
                         g.addEdge(2, 3);
                             g.addEdge(4, 3);
-
     return g;
 }
 
-int main(int argc, char** argv) {
-    std::string outPath = (argc > 1) ? argv[1]: "trace.json";
+// Mismo grafo + arista 3->0 que cierra un ciclo (0->1->3->0).
+static Graph buildCycleGraph() { Graph g(6);
+    g.addEdge(0, 1);
+        g.addEdge(0, 2);
+            g.addEdge(5, 2);
+                g.addEdge(5, 4);
+                    g.addEdge(1, 3);
+                        g.addEdge(2, 3);
+                            g.addEdge(4, 3);
+                                g.addEdge(3, 0);
+    return g;
+}
 
-    Graph g = buildDemoGraph();
+// Ejecuta kahn() sobre g, escribe la traza en outPath y reporta por stdout.
+static int runAndTrace(const Graph& g, const std::string& outPath) {
     TraceWriter tw(outPath);
     tw.setGraph(g.n, g.edges);
 
@@ -46,4 +53,18 @@ int main(int argc, char** argv) {
         return 1;
     }
     return 0;
+}
+
+int main(int argc, char** argv) {
+    // Modo --cycle: genera trace_cycle.json (grafo con ciclo)
+    if (argc > 1 && std::strcmp(argv[1], "--cycle") == 0) {
+        Graph g = buildCycleGraph();
+        return runAndTrace(g, "trace_cycle.json");
+    }
+
+    // Modo normal: grafo de demo sin ciclo.
+    // argv[1] opcional = ruta de salida (por defecto trace.json)
+    std::string outPath = (argc > 1) ? argv[1] : "trace.json";
+    Graph g = buildDemoGraph();
+    return runAndTrace(g, outPath);
 }
