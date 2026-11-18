@@ -66,21 +66,70 @@
 
 \section{Descripción de la estructura y \textit{TDA}}
 
-\dots
+El algoritmo de Kahn trabaja sobre dos TDA: un {grafo dirigido}, que representa las tareas y sus dependencias, y una {cola} de enteros, que guarda los nodos listos para procesarse (grado de entrada cero). \\
+
+La función \texttt{kahn()} calcula los grados de entrada con el grafo, inserta en la cola los nodos de grado cero y, mientras la cola no esté vacía, extrae un nodo, lo agrega al orden final y resta uno al grado de cada vecino. Cuando un vecino llega a cero, entra a la cola.
+
+\subsection{Grafo dirigido}
+
+\begin{itemize}
+    \item Número de nodos $n$ (identificados de $0$ a $n-1$) y un conjunto de aristas dirigidas $u \rightarrow v$.
+    \item \textbf{Representación:} Listas de adyacencia: \texttt{adj[u]} contiene los nodos $v$ tales que existe la arista $u \rightarrow v$. Además se guarda la lista \texttt{edges} con todas las aristas, que se usa para exportar el grafo al archivo JSON de la traza.
+    \item \textbf{Operaciones:}
+    \begin{itemize}
+      \item \texttt{Graph(n)}: crea un grafo con $n$ nodos y sin aristas.
+      \item \texttt{addEdge(u, v)}: agrega la arista $u \rightarrow v$. Lanza una excepción si $u$ o $v$ están fuera de $[0, n-1]$.
+      \item \texttt{computeIndegree()}: devuelve un arreglo con el grado de entrada (número de aristas que llegan) de cada nodo.
+    \end{itemize}
+    \item Las listas de adyacencia permiten recorrer los vecinos de un nodo en tiempo proporcional a su número de aristas, que es justo lo que necesita Kahn al restar grados de entrada. Una matriz de adyacencia ocuparía $O(V^2)$ y obligaría a revisar $V$ posiciones por cada nodo.
+\end{itemize}
+
+\subsection{Cola}
+
+\begin{itemize}
+    Secuencia de enteros con política FIFO: el primer elemento en entrar es el primero en salir.
+    \item \textbf{Representación:} Un arreglo de tamaño fijo \texttt{buf\_} y dos enteros: \texttt{head\_}, índice del frente, y \texttt{count\_}, cantidad de elementos. El fondo de la cola está en la posición $(\texttt{head\_} + \texttt{count\_}) \bmod \texttt{capacidad}$, de modo que al llegar al final del arreglo se continúa desde el inicio sin desplazar elementos.
+    \item \textbf{Operaciones:}
+    \begin{itemize}
+      \item \texttt{IntQueue(capacity)}: crea una cola vacía con la capacidad indicada.
+      \item \texttt{push(x)}: inserta $x$ al fondo. Lanza una excepción si la cola está llena.
+      \item \texttt{pop()}: elimina y devuelve el elemento del frente. Lanza una excepción si la cola está vacía.
+      \item \texttt{front()}: devuelve el elemento del frente sin eliminarlo.
+      \item \texttt{empty()} y \texttt{size()}: indican si la cola está vacía y cuántos elementos tiene.
+      \item \texttt{snapshot()}: devuelve una copia del contenido, del frente al fondo. La usa la traza para mostrar la cola en cada paso de la animación.
+    \end{itemize}
+    \item En el algoritmo de Kahn cada nodo entra a la cola una sola vez, por lo que una capacidad igual a $n$ siempre basta y la cola nunca se redimensiona. Todas las operaciones básicas (\texttt{push}, \texttt{pop}, \texttt{front}) cuestan $O(1)$.
+\end{itemize}
 
 \section{Herramientas usadas y pasos para reproducir el video}
 
 \subsection{Herramientas}
 
 \begin{itemize}
-    \item 
+    \item \textbf{C++17} (\texttt{g++}) para el grafo, la cola, el algoritmo \texttt{kahn()} y la escritura de la traza.
+    \item \textbf{CMake} ($\geq 3.20$) y \textbf{CLion} para compilar el proyecto y los ejecutables \texttt{kahn} y \texttt{tests}.
+    \item \textbf{JSON} como formato de la traza (\texttt{trace.json} y \texttt{trace\_cycle.json}): la animación solo lee lo que el código escribió, sin recalcular nada.
+    \item \textbf{Python 3.9+} y \textbf{Manim} para dibujar las seis escenas de la animación a partir de la traza.
+    \item \textbf{ffmpeg} para unir las escenas en el video final (\texttt{kahn\_final.mp4}).
+    \item \textbf{Git y GitHub} para el trabajo en equipo y el control de versiones; \textbf{Git Bash} para ejecutar el script de render en Windows.
+    \item \textbf{\LaTeX} para redactar este informe.
 \end{itemize}
 
 \subsection{Pasos a seguir}
 
 \begin{enumerate}
     \item Clonar el repositorio \url{https://github.com/Kroj-07/AED_Algoritmo_de_Kahn.git}.
-    \item Compilar y correr las pruebas para generar los \textit{traces} reales: \texttt{...}
+    \item Compilar y correr las pruebas para generar los \textit{traces} reales:
+    \begin{itemize}
+        \item[] \texttt{cmake -S . -B build -DCMAKE\_BUILD\_TYPE=Release}
+        \item[] \texttt{cmake --build build}
+        \item[] \texttt{./tests}
+        \item[] \texttt{./kahn trace.json}
+        \item[] \texttt{./kahn --cycle}
+    \end{itemize}
+    \item Instalar las dependencias de la animación: \texttt{pip install manim} y comprobar que \texttt{ffmpeg} y \texttt{manim --version} funcionan.
+    \item Generar el video completo con el script \texttt{./animacion/build\_video.sh}. El script compila el código, genera ambas trazas, renderiza las seis escenas con Manim a 1080p60 y las concatena con \textit{ffmpeg}.
+    \item Revisar el resultado en \texttt{animacion/video/kahn\_final.mp4}. En Windows, seguir antes la guía \texttt{RenderGuide.md} (desactivar \textit{Smart App Control} y usar \textit{Git Bash}).
 \end{enumerate}
 
 \section{Contribuciones de cada integrante}
@@ -90,32 +139,33 @@
         \begin{tabular}{|c|p{3.5cm}|p{3.5cm}|p{3.5cm}|}
             \hline \textbf{Integrante} & \textbf{Contribución de código} & \textbf{Contribución a la animación} & \textbf{Contribución al informe y/o \texttt{README.md}} \\
             \hline Abigail Jaslin Cabanillas Ventocilla & 
-            - & 
-            - 
-            & 
-            - \\
+            \texttt{graph.cpp}, \texttt{int\_queue.cpp} & 
+            \texttt{escenas\_p1-p2.py} & 
+            Complemento informe \\
             \hline Azul Arbulú Silva &
-            - & 
-            - & 
-            - \\ 
+            \texttt{trace.cpp}, \texttt{main.cpp}, \texttt{tests.cpp} & 
+            \texttt{escenas\_p3.py} & 
+            \texttt{README.md}, complemento informe \\ 
             \hline Kiara Luz Rojas Meza & 
-            - &
-            - & 
-            - \\ \hline
+            \texttt{kahn.cpp} &
+            \texttt{escenas\_p1-p2.py} & 
+            Complemento informe \\ \hline
         \end{tabular}    
     \end{table}
 
 \section{Análisis de complejidad}
 
+    Sea $V$ el número de nodos y $E$ el número de aristas.
+
     \begin{table}[H]  
         \centering
-        \begin{tabular}{|c|c|p{5.5cm}|} 
+        \begin{tabular}{|c|c|p{7cm}|} 
             \hline \textbf{Operación} & \textbf{Complejidad} & \textbf{Explicación breve}\\
-            \hline \texttt{...} & $O(...)$ & ... \\
-            \hline \texttt{...} & $O(...)$ & ... \\
-            \hline \texttt{...} & $O(...)$ & ... \\
-            \hline \texttt{...} & $O(...)$ & ... \\
-            \hline \texttt{...} & $O(...)$ & ... \\\hline
+            \hline \texttt{Graph::addEdge} & $O(1)$ & Valida los índices y agrega al final de \texttt{adj[u]} y de \texttt{edges}. \\
+            \hline \texttt{Graph::computeIndegree} & $O(V+E)$ & Crea el arreglo de $V$ posiciones y recorre cada arista una vez. \\
+            \hline \texttt{IntQueue::push / pop / front} & $O(1)$ & Acceso directo por índice con aritmética modular; no se desplazan elementos. \\
+            \hline \texttt{IntQueue::snapshot} & $O(k)$ & Copia los $k \leq V$ elementos presentes; solo se usa para la traza. \\
+            \hline \texttt{kahn()} & $O(V+E)$ & Calcula los grados $O(V+E)$, cada nodo entra y sale de la cola una vez $O(V)$ y cada arista se revisa una vez $O(E)$. \\\hline
         \end{tabular}    
     \end{table}
 
@@ -135,7 +185,7 @@
 
         \begin{tabular}{|c|} 
             \hline \textbf{Vínculo al vídeo de \textit{YouTube}} \\
-            \hline \url{...} \\ \hline
+            \hline \url{https://youtu.be/zmqbKkinQMM} \\ \hline
         \end{tabular}
     
     \end{table}
@@ -143,9 +193,13 @@
 \section{Conclusiones}
 
 \begin{itemize}
-    \item 
+    \item Las listas de adyacencia y la cola circular propia bastan para que el algoritmo de Kahn corra en $O(V+E)$ tiempo y $O(V)$ memoria adicional, sin redimensionar estructuras.
 
-    \item 
+    \item El algoritmo también detecta ciclos: si el orden final tiene menos de $V$ nodos, los nodos restantes forman o dependen de un ciclo y no existe orden topológico.
+
+    \item Separar el proyecto en estructuras base, núcleo del algoritmo y traza permitió trabajar en paralelo; la interfaz común \texttt{kahn\_interface.hpp} redujo los conflictos al integrar.
+
+    \item Generar la animación desde un archivo de traza JSON garantiza que el video muestra la ejecución real del código, y las pruebas de casos borde (grafo vacío, un nodo, ciclo, varias fuentes) respaldan su correctitud.
 \end{itemize}
 
 \end{document}
