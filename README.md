@@ -150,6 +150,6 @@ AED_Algoritmo_de_Kahn/
 
 ## Video y repositorio
 
-...
+- Vínculo al video de YouTube: <https://youtu.be/zmqbKkinQMM>
 
 - Repositorio: [enlace a este repositorio](https://github.com/Kroj-07/AED_Algoritmo_de_Kahn.git)
