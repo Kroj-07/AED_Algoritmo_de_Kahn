@@ -3,4 +3,8 @@
   <component name="Black">
     <option name="sdkName" value="Python 3.14 (AED_Algoritmo_de_Kahn)" />
   </component>
+  <component name="CMakePythonSetting">
+    <option name="pythonIntegrationState" value="YES" />
+  </component>
+  <component name="CMakeWorkspace" PROJECT_DIR="$PROJECT_DIR$" />
 </project>

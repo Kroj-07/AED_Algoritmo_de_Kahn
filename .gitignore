@@ -10,3 +10,5 @@ animacion/trace_cycle.json
 media/
 __pycache__/
 *.pyc
+
+kahn.exe

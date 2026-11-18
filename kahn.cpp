@@ -1,10 +1,10 @@
 #include "kahn_interface.hpp"
 
 KahnResult kahn(const Graph& g, TraceWriter* trace) {
-    // 1) Grados de entrada iniciales ( P1)
+    // Grados de entrada iniciales
     std::vector<int> indeg = g.computeIndegree();
 
-    // 2) Cola inicial con todos los nodos de grado 0
+    // Cola inicial con todos los nodos de grado 0
     IntQueue q(g.n);
     for (int u = 0; u < g.n; ++u) {
         if (indeg[u] == 0) q.push(u);
@@ -12,7 +12,7 @@ KahnResult kahn(const Graph& g, TraceWriter* trace) {
 
     if (trace) trace->init(indeg, q.snapshot());
 
-    // 3) Bucle principal
+    // Bucle principal
     std::vector<int> order;
     order.reserve(g.n);
 
@@ -34,7 +34,7 @@ KahnResult kahn(const Graph& g, TraceWriter* trace) {
         }
     }
 
-    // 4) Detección de ciclo y reporte final
+    // Detección de ciclo y reporte final
     bool hasCycle = static_cast<int>(order.size()) < g.n;
 
     if (hasCycle && trace) {
@@ -50,6 +50,5 @@ KahnResult kahn(const Graph& g, TraceWriter* trace) {
     }
 
     if (trace) trace->finish(order, hasCycle);
-
     return KahnResult{order, hasCycle};
 }

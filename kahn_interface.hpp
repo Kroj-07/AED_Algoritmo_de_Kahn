@@ -1,9 +1,3 @@
-// kahn_interface.hpp
-// CONTRATO entre los 3 módulos. No cambiar firmas sin avisar a los otros dos.
-//
-//   P1 -> Graph, IntQueue            (graph.cpp, int_queue.cpp)
-//   P2 -> kahn()                     (kahn.cpp)
-//   P3 -> TraceWriter + main + tests (trace.cpp, main.cpp, tests.cpp)
 #pragma once
 #include <string>
 #include <vector>
@@ -37,18 +31,9 @@ private:
     int head_ = 0;          // indice del frente
     int count_ = 0;         // elementos actuales
 };
-};
 
 // P3: traza (la animación SOLO lee lo que esto escribe)
 class TraceWriter {
-  std::ofstream out_; 
-    bool firstEvent_ = true; 
-      bool graphSet_ = false;
-        bool finished_ = false;
-
-  void writeEventHeader(const std::string& type);
-  static std::string vecToJson(const std::vector<int>& v);
-
   public:
     // outPath: ruta del JSON.
     explicit TraceWriter(const std::string& outPath);
@@ -67,6 +52,15 @@ class TraceWriter {
 
     // Escribe el JSON final.
     void flush();
+
+    private:
+        std::ofstream out_;
+            bool firstEvent_ = true;
+                //bool graphSet_ = false;
+                    //bool finished_ = false;
+
+        void writeEventHeader(const std::string& type);
+        static std::string vecToJson(const std::vector<int>& v);
 };
 
 // P2: núcleo del algoritmo
@@ -77,26 +71,3 @@ struct KahnResult {
 
 // trace puede ser nullptr (para tests sin animación).
 KahnResult kahn(const Graph& g, TraceWriter* trace = nullptr);
-
-/* FORMATO DEL JSON (trace.json) que lee la animación
-{
-  "n": 5,
-  "edges": [[0,1],[0,2],[1,3],[2,3],[3,4]],
-  "events": [
-    {"type":"init",      "indegree":[0,1,1,2,1], "queue":[0]},
-    {"type":"pop",       "node":0, "queue":[]},
-    {"type":"output",    "node":0, "order":[0]},
-    {"type":"decrement", "from":0, "to":1, "indegree":0},
-    {"type":"push",      "node":1, "queue":[1]},
-    {"type":"decrement", "from":0, "to":2, "indegree":0},
-    {"type":"push",      "node":2, "queue":[1,2]},
-    ...
-    {"type":"cycle",     "remaining":[3,4]},      // solo si hay ciclo
-    {"type":"finish",    "order":[0,1,2,3,4], "hasCycle":false}
-  ]
-}
-   Lectura en Python (para Manim):
-     import json; t = json.load(open("trace.json"))
-     for ev in t["events"]: ...   # una animación por evento */
-
-     // trace.hpp

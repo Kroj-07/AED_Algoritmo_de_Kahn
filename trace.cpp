@@ -7,7 +7,8 @@ TraceWriter::TraceWriter(const std::string& outPath): out_(outPath){
 std::string TraceWriter::vecToJson(const std::vector<int>& v){
     std::string s = "[";
     for (size_t i = 0; i < v.size(); ++i) {
-      if (i) s += ","; s += std::to_string(v[i]);
+      if (i) s += ",";
+        s += std::to_string(v[i]);
     } s += "]";
     return s;
   }
@@ -17,7 +18,7 @@ void TraceWriter::setGraph(int n, const std::vector<std::pair<int,int>>& edges){
       for (size_t i = 0; i < edges.size(); ++i) {
         if (i) out_ << ",";
           out_ << "[" << edges[i].first << "," << edges[i].second << "]";
-      } out_ << "],\n  \"events\": ["; graphSet_ = true;
+      } out_ << "],\n  \"events\": ["; // graphSet_ = true;
     }
 
 void TraceWriter::writeEventHeader(const std::string& type){
@@ -58,7 +59,7 @@ void TraceWriter::cycle(const std::vector<int>& remaining){
 void TraceWriter::finish(const std::vector<int>& order, bool hasCycle){
         writeEventHeader("finish");
       out_ << ", \"order\":" << vecToJson(order) << ", \"hasCycle\":" << (hasCycle ? "true" : "false") << "}";
-        finished_ = true;
+        //finished_ = true;
     }
 
 void TraceWriter::flush(){
