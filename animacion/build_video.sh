@@ -16,12 +16,30 @@ done
 # 1) Compilar C++ y generar trazas
 echo "Compilando C++..."
 cd "$REPO_ROOT"
-g++ -std=c++17 main.cpp graph.cpp int_queue.cpp kahn.cpp trace.cpp -o kahn.exe
+rm -f kahn.exe
+# Que Windows encuentre las DLL del MinGW usado para compilar (libstdc++, winpthread...)
+export PATH="$(dirname "$(command -v g++)"):$PATH"
+SRC="main.cpp graph.cpp int_queue.cpp kahn.cpp trace.cpp"
+# Se prueba de más a menos estático (algunos MinGW, p.ej. el de Octave, no traen pthread estático)
+g++ -std=c++17 -static $SRC -o kahn.exe 2>/dev/null \
+  || g++ -std=c++17 -static-libgcc -static-libstdc++ $SRC -o kahn.exe 2>/dev/null \
+  || g++ -std=c++17 $SRC -o kahn.exe
+[ -f kahn.exe ] || { echo "ERROR: g++ no generó kahn.exe"; exit 1; }
 
 echo "Generando archivos JSON..."
 rm -f trace.json trace_cycle.json
-./kahn.exe trace.json
-./kahn.exe --cycle
+correr() {
+  local code=0
+  ./kahn.exe "$@" || code=$?
+  if [ "$code" -ne 0 ]; then
+    echo "ERROR: kahn.exe $* terminó con código $code"
+    echo "  126/127 o 'Acceso denegado' => Smart App Control o antivirus bloquea el .exe"
+    echo "  código 53 / 0xC0000135 / 3221225781 => faltan DLL de MinGW"
+    exit 1
+  fi
+}
+correr trace.json
+correr --cycle
 
 for f in trace.json trace_cycle.json; do
   [ -s "$f" ] || { echo "ERROR: no se generó $f (¿antivirus / Smart App Control bloqueando kahn.exe?)"; exit 1; }
