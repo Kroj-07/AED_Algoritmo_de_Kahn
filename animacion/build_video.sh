@@ -9,21 +9,22 @@ cd "$REPO_ROOT"
 g++ -std=c++17 main.cpp graph.cpp int_queue.cpp kahn.cpp trace.cpp -o kahn.exe
 
 echo "Generando archivos JSON..."
-# Usamos winpty para asegurar que la ejecución del .exe no rompa Git Bash
+# Usamos cmd //c para evitar que Git Bash se coma la ejecución
 cmd //c "kahn.exe trace.json"
 cmd //c "kahn.exe --cycle"
 
-if [ ! -f "trace.json" ]; then
+# Verificamos que ambos archivos existan
+if [ ! -f "trace.json" ] || [ ! -f "trace_cycle.json" ]; then
     echo ""
-    echo "ERROR: 'trace.json' no se creó."
-    echo "Asegúrate de que Smart App Control (Seguridad de Windows) esté DESACTIVADO."
+    echo "ERROR: No se generaron ambos JSON. Revisa si Windows bloqueó el .exe."
     exit 1
 fi
 
 echo "Preparando Manim..."
 cd "$SCRIPT_DIR"
+# Copiamos AMBOS archivos a la carpeta de animacion
 cp "$REPO_ROOT/trace.json"        "$SCRIPT_DIR/trace.json"
-cp "$REPO_ROOT/trace_cycle.json"  "$SCRIPT_DIR/trace_cycle.json" 2>/dev/null || true
+cp "$REPO_ROOT/trace_cycle.json"  "$SCRIPT_DIR/trace_cycle.json"
 
 echo "Renderizando escenas..."
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Intro
