@@ -110,6 +110,8 @@ Puedes usar _ffmpeg_ para concatenarlos. Crea un archivo `lista.txt` con las rut
 >manim --version
 >```
 
+> En caso de tener inconvenientes ver archivo `RenderGuide.md` en este mismo directorio.
+
 ## Estructura resultante del repositorio 
 
 ```
