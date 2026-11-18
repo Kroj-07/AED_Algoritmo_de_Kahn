@@ -1,26 +1,30 @@
 #!/usr/bin/env bash
-set -e
-
-# Rutas
-SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)" # .../animacion
-REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)" # raíz del repo
-OUT="$SCRIPT_DIR/video" # animacion/video/
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+REPO_ROOT="$(cd "$SCRIPT_DIR/.." && pwd)"
+OUT="$SCRIPT_DIR/video"
 mkdir -p "$OUT"
 
-# 1. Compilar y generar trazas desde la raíz
+echo "Compilando C++..."
 cd "$REPO_ROOT"
-g++ -std=c++17 main.cpp graph.cpp int_queue.cpp kahn.cpp trace.cpp -o kahn
-./kahn trace.json
-./kahn --cycle # genera trace_cycle.json
+g++ -std=c++17 main.cpp graph.cpp int_queue.cpp kahn.cpp trace.cpp -o kahn.exe
 
-# 2. Renderizar desde la carpeta animacion
+echo "Generando archivos JSON..."
+# Usamos winpty para asegurar que la ejecución del .exe no rompa Git Bash
+cmd //c "kahn.exe trace.json"
+cmd //c "kahn.exe --cycle"
+
+if [ ! -f "trace.json" ]; then
+    echo ""
+    echo "ERROR: 'trace.json' no se creó."
+    echo "Asegúrate de que Smart App Control (Seguridad de Windows) esté DESACTIVADO."
+    exit 1
+fi
+
+echo "Preparando Manim..."
 cd "$SCRIPT_DIR"
-
-# Copiar los JSON para que Manim los encuentre
 cp "$REPO_ROOT/trace.json"        "$SCRIPT_DIR/trace.json"
 cp "$REPO_ROOT/trace_cycle.json"  "$SCRIPT_DIR/trace_cycle.json" 2>/dev/null || true
 
-# Renderizar las 6 escenas
 echo "Renderizando escenas..."
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Intro
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Idea
@@ -29,7 +33,7 @@ manim -qh --media_dir "$OUT" escenas_p3.py    CasoBorde
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Complejidad
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Creditos
 
-# 3. Buscar los mp4 y copiarlos con nombres ordenados a la raíz de video/
+echo "Uniendo videos..."
 find_mp4 () {
   find "$OUT" -path "*/1080p60/$1.mp4" | head -n 1
 }
@@ -48,7 +52,6 @@ cp "$BORDE" "$OUT/04_caso_borde.mp4"
 cp "$COMP"  "$OUT/05_complejidad.mp4"
 cp "$CRED"  "$OUT/06_creditos.mp4"
 
-# 4. Crear lista y concatenar
 cat > "$OUT/lista.txt" <<EOF
 file '01_intro.mp4'
 file '02_idea.mp4'
@@ -58,10 +61,9 @@ file '05_complejidad.mp4'
 file '06_creditos.mp4'
 EOF
 
-echo "Uniendo videos con ffmpeg..."
-(cd "$OUT" && ffmpeg -y -f concat -safe 0 -i lista.txt -c copy kahn_final.mp4 < /dev/null)
+cd "$OUT"
+ffmpeg -y -f concat -safe 0 -i lista.txt -c copy kahn_final.mp4 < /dev/null
 
-# 5. Limpiar carpetas temporales de Manim
 rm -rf "$OUT/videos"
-
-echo "Ya está, video final en: $OUT/kahn_final.mp4"
+echo ""
+echo "¡Ya está! Video final en: $OUT/kahn_final.mp4"
