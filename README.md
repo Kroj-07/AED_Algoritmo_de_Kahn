@@ -70,30 +70,39 @@ El render completo lo hace el _script_ `animacion/build_video.sh`:
 
 ---
 
-+ Renderización total:
++ Para renderizar la animación ejecutar el script:
 
   ```
-  chmod +x animacion/build_video.sh   # solo la primera vez
   ./animacion/build_video.sh
   ```
-+ Renderización parcial:
++ Para renderizar manualmente: 
+
+  + 1. Renderizar las trazas:
+  
+  ```
+  ./kahn trace.json
+  ./kahn --cycle
+  ```
+  
+   + 2. Renderizar cada escena por separado. Desde la carpeta animacion, ejecutar:
 
   ```
-  cd animacion
-  manim -pqh escenas_p1-p2.py Intro # baja calidad
-  manim -qh  escenas_p1-p2.py Intro # 1080p
+  # Para las escenas de P1 y P2
+  manim -qh escenas_p1-p2.py Intro
+  manim -qh escenas_p1-p2.py Idea
+  manim -qh escenas_p1-p2.py Complejidad
+  manim -qh escenas_p1-p2.py Creditos
+  
+  # Para las escenas de P3
+  manim -qh escenas_p3.py Demo
+  manim -qh escenas_p3.py CasoBorde
   ```
->+ La salida esperada de `tests.cpp` es la siguiente:
->
->```
->[test] vacio
->[test] un nodo
->[test] ciclo
->[test] varios grados 0
->[test] trace nullptr
->[test] traza JSON
->TODOS LOS TESTS PASARON
->```
+  
+   + 3. Unir los videos. Manim guarda cada escena en `media/videos/`. 
+Puedes usar _ffmpeg_ para concatenarlos. Crea un archivo `lista.txt` con las rutas y ejecuta:
+   ```
+  ffmpeg -y -f concat -safe 0 -i lista.txt -c copy video_final.mp4
+  ```
 
 > El video no se rendizará si _Manim_ no está instalado, para verificar ello correr:
 >
