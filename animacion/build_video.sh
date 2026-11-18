@@ -10,7 +10,7 @@ mkdir -p "$OUT"
 
 # Compilar y generar trazas desde la raíz
 cd "$REPO_ROOT"
-g++ -std=c++17 *.cpp -o kahn
+g++ -std=c++17 main.cpp graph.cpp int_queue.cpp kahn.cpp trace.cpp -o kahn # fix para q renderize...
 ./kahn trace.json
 ./kahn --cycle            # genera trace_cycle.json
 
