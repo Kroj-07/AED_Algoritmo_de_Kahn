@@ -72,7 +72,7 @@ El render completo lo hace el _script_ `animacion/build_video.sh`:
 
 + Para renderizar la animación ejecutar el script:
 
-  ```
+  ```bash
   ./animacion/build_video.sh
   ```
 + Para renderizar manualmente: 
