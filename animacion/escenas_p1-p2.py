@@ -10,6 +10,20 @@ CURSO = "Algoritmos y Estructuras de Datos"
 REPO = "https://github.com/Kroj-07/AED_Algoritmo_de_Kahn"
 
 
+class EscenaTemporizada(Scene):
+    """Escena con duración objetivo (segundos) tomada del guion."""
+    DURACION = 0
+
+    def rellenar(self, reserva=0.0):
+        """Espera lo que falte para llegar a DURACION.
+        `reserva` = segundos de animaciones que aún faltan (p. ej. el FadeOut final)."""
+        falta = self.DURACION - self.renderer.time - reserva
+        if falta > 0.01:
+            self.wait(falta)
+        elif falta < -0.05:
+            print(f"[AVISO] {type(self).__name__} se pasa {-falta:.1f}s de {self.DURACION}s")
+
+
 def caja(texto, color=BLUE, size=30):
     t = Text(texto, font_size=size)
     r = RoundedRectangle(
@@ -18,14 +32,16 @@ def caja(texto, color=BLUE, size=30):
     return VGroup(r, t)
 
 
-class Intro(Scene):
+class Intro(EscenaTemporizada):
+    DURACION = 35
+
     def construct(self):
         titulo = Text("Algoritmo de Kahn", font_size=64)
         sub = Text("Ordenamiento topológico", font_size=32, color=GRAY_B)
         sub.next_to(titulo, DOWN)
         self.play(Write(titulo))
         self.play(FadeIn(sub, shift=UP * 0.3))
-        self.wait(1.5)
+        self.wait(4)
         self.play(FadeOut(titulo), FadeOut(sub))
 
         # Ejemplo cotidiano: tareas con dependencias
@@ -34,15 +50,17 @@ class Intro(Scene):
         flecha = Arrow(medias.get_right(), zapatos.get_left(), buff=0.15)
         self.play(FadeIn(medias), FadeIn(zapatos))
         self.play(GrowArrow(flecha))
-        self.wait(1)
+        self.wait(5)
 
         pregunta = Text("¿En qué orden hacemos todas las tareas?", font_size=36)
         pregunta.to_edge(DOWN, buff=1)
         self.play(Write(pregunta))
-        self.wait(2)
+        self.rellenar(reserva=1)
         self.play(FadeOut(VGroup(medias, zapatos, flecha, pregunta)))
 
-class Idea(Scene):
+class Idea(EscenaTemporizada):
+    DURACION = 40
+
     def construct(self):
         titulo = Text("¿Cómo funciona?", font_size=52).to_edge(UP)
         self.play(Write(titulo))
@@ -86,7 +104,7 @@ class Idea(Scene):
             et.next_to(pos[v], UP, buff=0.1)
             etiquetas_grado.add(et)
         self.play(FadeIn(etiquetas_grado))
-        self.wait(0.5)
+        self.wait(5)
 
         # Cola y Orden a la derecha
         cola_titulo = Text("Cola", font_size=30, color=GREEN).move_to(RIGHT * 5 + UP * 2)
@@ -100,7 +118,7 @@ class Idea(Scene):
         # Paso 1: meter los de grado 0 (nodo 0)
         cola1 = Text("[0]", font_size=30, color=GREEN).move_to(cola_vacia)
         self.play(Transform(cola_vacia, cola1))
-        self.wait(0.5)
+        self.wait(4)
 
         # Paso 2: sacar 0, agregarlo al orden, bajar grados de 1 y 2
         orden1 = Text("[0]", font_size=30, color=GREEN).move_to(orden_vacio)
@@ -115,7 +133,7 @@ class Idea(Scene):
 
         cola3 = Text("[1, 2]", font_size=30, color=GREEN).move_to(cola_vacia)
         self.play(Transform(cola_vacia, cola3))
-        self.wait(0.5)
+        self.wait(3)
 
         # Paso 3: terminar el 1, bajar grado de 3
         orden2 = Text("[0, 1]", font_size=30, color=GREEN).move_to(orden_vacio)
@@ -124,7 +142,7 @@ class Idea(Scene):
         self.play(Transform(cola_vacia, cola4))
         g3 = Text("in=1", font_size=24, color=RED).move_to(etiquetas_grado[3])
         self.play(Transform(etiquetas_grado[3], g3))
-        self.wait(0.5)
+        self.wait(2.5)
 
         # Paso 4: terminar 2, bajar 3 a 0, entrar a cola
         orden3 = Text("[0, 1, 2]", font_size=30, color=GREEN).move_to(orden_vacio)
@@ -133,14 +151,14 @@ class Idea(Scene):
         self.play(Transform(etiquetas_grado[3], g3b))
         cola5 = Text("[3]", font_size=30, color=GREEN).move_to(cola_vacia)
         self.play(Transform(cola_vacia, cola5))
-        self.wait(0.5)
+        self.wait(2.5)
 
         # Paso 5: terminar 3, cola vacía, orden completo
         orden4 = Text("[0, 1, 2, 3]", font_size=30, color=GREEN).move_to(orden_vacio)
         self.play(Transform(orden_vacio, orden4))
         cola6 = Text("[ ]", font_size=30, color=GREEN).move_to(cola_vacia)
         self.play(Transform(cola_vacia, cola6))
-        self.wait(2)
+        self.rellenar(reserva=1)
 
         self.play(
             FadeOut(
@@ -151,7 +169,9 @@ class Idea(Scene):
             )
         )
 
-class Complejidad(Scene):
+class Complejidad(EscenaTemporizada):
+    DURACION = 35
+
     def construct(self):
         titulo = Text("Complejidad", font_size=52).to_edge(UP)
         self.play(Write(titulo))
@@ -170,20 +190,22 @@ class Complejidad(Scene):
             fila = VGroup(izq, der)
             grupo.add(fila)
             self.play(FadeIn(fila, shift=RIGHT * 0.3))
-            self.wait(1)
+            self.wait(3.5)
 
         total = Text("Tiempo total: O(V + E)", font_size=44, color=GREEN)
         total.move_to([0, -1.8, 0])
         memoria = Text("Memoria extra: O(V)", font_size=34)
         memoria.next_to(total, DOWN, buff=0.4)
         self.play(Write(total))
-        self.wait(1)
+        self.wait(2.5)
         self.play(FadeIn(memoria))
-        self.wait(3)
+        self.rellenar(reserva=1)
         self.play(FadeOut(VGroup(titulo, grupo, total, memoria)))
 
 
-class Creditos(Scene):
+class Creditos(EscenaTemporizada):
+    DURACION = 25
+
     def construct(self):
         titulo = Text("Créditos", font_size=52).to_edge(UP)
         self.play(Write(titulo))
@@ -201,12 +223,12 @@ class Creditos(Scene):
         lineas.arrange(DOWN, buff=0.5).next_to(titulo, DOWN, buff=0.7)
         for l in lineas:
             self.play(FadeIn(l, shift=UP * 0.2))
-            self.wait(0.8)
+            self.wait(4)
 
         pie = VGroup(
             Text(CURSO, font_size=26),
             Text(REPO, font_size=22, color=BLUE),
         ).arrange(DOWN, buff=0.2).to_edge(DOWN, buff=0.5)
         self.play(FadeIn(pie))
-        self.wait(3)
+        self.rellenar(reserva=1)
         self.play(FadeOut(VGroup(titulo, lineas, pie)))
