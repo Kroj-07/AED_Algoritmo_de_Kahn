@@ -27,7 +27,7 @@ comunican mediante `kahn_interface.hpp`:
 | Núcleo del algoritmo | `kahn.cpp` | Kiara Luz Rojas Meza | `kahn()`: bucle principal, reducción de grados, detección de ciclo. |
 | Traza y pruebas | `trace.cpp`, `main.cpp`, `tests.cpp` | Azul Arbulú Silva | `TraceWriter` (JSON), driver `main` y tests de casos borde. |
 
-La animación **solo lee** el archivo `trace.json` generado por
+La animación lee el archivo `trace.json` generado por
 `TraceWriter`; no recalcula nada. Así se garantiza que el video
 muestra la ejecución real del código y no una simulación aparte.
 
@@ -39,6 +39,8 @@ muestra la ejecución real del código y no una simulación aparte.
 
 + `ffmpeg`: Manim lo usa internamente para producir el `.mp4`.
 
++  `CMake` $\geq 3.20$ (para compilar desde CLion o desde terminal).
+
 Instalación de Manim (una sola vez):
 
 ```bash
@@ -47,44 +49,57 @@ pip install manim
 
 ## Procedimiento de compilación y ejecución de pruebas
 
-+ 1. Compilar todo el proyecto: `g++ -std=c++17 *.cpp -o kahn`.
+Con `CMake` correr:
 
-+ 2. Ejecutar el driver: genera `trace.json` con el grafo de demo.
-
-+ 3. Ejecutar los tests de casos borde:
-
-    ```
-    g++ -std=c++17 tests.cpp trace.cpp kahn.cpp graph.cpp int_queue.cpp -o tests
-    ./tests
-    ```
-
-    + La salida esperada de `tests.cpp` es la siguiente:
-
-    ```
-    [test] vacio
-    [test] un nodo
-    [test] ciclo
-    [test] varios grados 0
-    [test] trace nullptr
-    [test] traza JSON
-    TODOS LOS TESTS PASARON
-    ```
+```bash
+cmake -S . -B build -DCMAKE_BUILD_TYPE=Release
+cmake --build build
+```
 
 ## Procedimiento para generar animación
 
-+ 1. Generar la traza real (requiere haber compilado antes): `./kahn trace.json`.
+El render completo lo hace el _script_ `animacion/build_video.sh`:
 
-+ 2. Renderizar la animación de Manim, Para renderizar la animación, desde el directiorio que contiene `animacion.py` correr:
++ 1. Compila todo el proyecto y generar `trace.json` y `trace_cycle.json`.
 
-    ```bash
-    manim -pqh animacion.py KahnScene
-    ```
++ 2. Copia las trazas a `animacion/`.
 
-    >El video no se rendizará si _Manim_ no está instalado, para verificar ello correr:
-    >
-    >```bash
-    >manim --version
-    >```
++ 3. Renderiza las 6 escenas con _Manim_ a 1080p60.
+
++ 4. Concatena las escenas con _ffmpeg_ en `animacion/video/kahn_final.mp4`.
+
+---
+
++ Renderización total:
+
+  ```
+  chmod +x animacion/build_video.sh   # solo la primera vez
+  ./animacion/build_video.sh
+  ```
++ Renderización parcial:
+
+  ```
+  cd animacion
+  manim -pqh escenas_p1-p2.py Intro # baja calidad
+  manim -qh  escenas_p1-p2.py Intro # 1080p
+  ```
+>+ La salida esperada de `tests.cpp` es la siguiente:
+>
+>```
+>[test] vacio
+>[test] un nodo
+>[test] ciclo
+>[test] varios grados 0
+>[test] trace nullptr
+>[test] traza JSON
+>TODOS LOS TESTS PASARON
+>```
+
+> El video no se rendizará si _Manim_ no está instalado, para verificar ello correr:
+>
+>```bash
+>manim --version
+>```
 
 ## Estructura resultante del repositorio 
 
@@ -109,6 +124,7 @@ AED_Algoritmo_de_Kahn/
 │   ├── main.tex
 │   └── Algoritmos_y_Estructuras_de_Datos___Informe_Proyecto_2.pdf
 ├── .gitignore
+├── CMakeLists.txt
 ├── README.md
 ├── main.cpp
 ├── graph.cpp
