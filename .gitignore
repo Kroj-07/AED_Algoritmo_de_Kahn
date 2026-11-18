@@ -1,1 +1,12 @@
 .vscode/
+
+kahn
+*.o
+trace.json
+trace_cycle.json
+animacion/video/
+animacion/trace.json
+animacion/trace_cycle.json
+media/
+__pycache__/
+*.pyc
