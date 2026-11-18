@@ -9,26 +9,27 @@ cd "$REPO_ROOT"
 g++ -std=c++17 main.cpp graph.cpp int_queue.cpp kahn.cpp trace.cpp -o kahn.exe
 
 echo "Generando archivos JSON..."
-# Usamos cmd //c para evitar que Git Bash se coma la ejecución
-cmd //c "kahn.exe trace.json"
-cmd //c "kahn.exe --cycle"
+# Ejecutamos los comandos directamente con ./
+./kahn.exe trace.json
+./kahn.exe --cycle
 
 # Verificamos que ambos archivos existan
 if [ ! -f "trace.json" ] || [ ! -f "trace_cycle.json" ]; then
     echo ""
-    echo "ERROR: No se generaron ambos JSON. Revisa si Windows bloqueó el .exe."
+    echo "ERROR: No se generaron ambos JSON."
+    echo "Buscando archivos generados en $REPO_ROOT:"
+    ls -la *.json 2>/dev/null || echo "No hay archivos .json en la raíz."
     exit 1
 fi
 
 echo "Preparando Manim..."
 cd "$SCRIPT_DIR"
-# Copiamos AMBOS archivos a la carpeta de animacion
 cp "$REPO_ROOT/trace.json"        "$SCRIPT_DIR/trace.json"
 cp "$REPO_ROOT/trace_cycle.json"  "$SCRIPT_DIR/trace_cycle.json"
 
 echo "Renderizando escenas..."
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Intro
-manim -qh --media_dir "$OUT" escenas_p1-p2.py Idea
+manim -qh --media_dir "$OUT" escenas_p1-p2.pygit Idea
 manim -qh --media_dir "$OUT" escenas_p3.py    Demo
 manim -qh --media_dir "$OUT" escenas_p3.py    CasoBorde
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Complejidad
@@ -67,4 +68,4 @@ ffmpeg -y -f concat -safe 0 -i lista.txt -c copy kahn_final.mp4 < /dev/null
 
 rm -rf "$OUT/videos"
 echo ""
-echo "¡Ya está! Video final en: $OUT/kahn_final.mp4"
+echo "Proceso terminado, video final en: $OUT/kahn_final.mp4 ==="
