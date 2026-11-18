@@ -1,7 +1,9 @@
 # [CS2023] Proyecto II: Algoritmo de Kahn (Topological sort)
 
-**Estructura de datos:** _Algoritmo de Kahn (Topological sort)_.
-**Curso:** CS2023 - Algoritmos y Estructuras de Datos (2026-2)
+**Estructura de datos:** _Algoritmo de Kahn (Topological sort)_. 
+
+**Curso:** CS2023 - Algoritmos y Estructuras de Datos (2026-2).
+
 **Docente:** Víctor Racsó Galván Oyola
 
 **Integrantes**:
