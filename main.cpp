@@ -56,15 +56,17 @@ static int runAndTrace(const Graph& g, const std::string& outPath) {
 }
 
 int main(int argc, char** argv) {
-    // Modo --cycle: genera trace_cycle.json (grafo con ciclo)
-    if (argc > 1 && std::strcmp(argv[1], "--cycle") == 0) {
+    // Pasamos el argumento a std::string para evitar problemas con caracteres basura de Windows
+    std::string arg1 = (argc > 1) ? std::string(argv[1]) : "";
+
+    // Modo --cycle: si el argumento contiene "cycle", generamos el ciclo
+    if (arg1.find("cycle") != std::string::npos) {
         Graph g = buildCycleGraph();
         return runAndTrace(g, "trace_cycle.json");
     }
 
     // Modo normal: grafo de demo sin ciclo.
-    // argv[1] opcional = ruta de salida (por defecto trace.json)
-    std::string outPath = (argc > 1) ? argv[1] : "trace.json";
+    std::string outPath = (argc > 1) ? arg1 : "trace.json";
     Graph g = buildDemoGraph();
     return runAndTrace(g, outPath);
 }

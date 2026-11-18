@@ -9,16 +9,14 @@ cd "$REPO_ROOT"
 g++ -std=c++17 main.cpp graph.cpp int_queue.cpp kahn.cpp trace.cpp -o kahn.exe
 
 echo "Generando archivos JSON..."
-# Ejecutamos los comandos directamente con ./
 ./kahn.exe trace.json
-./kahn.exe --cycle
 
-# Verificamos que ambos archivos existan
+# powershell.exe de forma explícita para el segundo comando
+powershell.exe -Command ".\kahn.exe --cycle"
+
 if [ ! -f "trace.json" ] || [ ! -f "trace_cycle.json" ]; then
-    echo ""
     echo "ERROR: No se generaron ambos JSON."
-    echo "Buscando archivos generados en $REPO_ROOT:"
-    ls -la *.json 2>/dev/null || echo "No hay archivos .json en la raíz."
+    ls -la *.json
     exit 1
 fi
 
@@ -29,7 +27,7 @@ cp "$REPO_ROOT/trace_cycle.json"  "$SCRIPT_DIR/trace_cycle.json"
 
 echo "Renderizando escenas..."
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Intro
-manim -qh --media_dir "$OUT" escenas_p1-p2.pygit Idea
+manim -qh --media_dir "$OUT" escenas_p1-p2.py Idea
 manim -qh --media_dir "$OUT" escenas_p3.py    Demo
 manim -qh --media_dir "$OUT" escenas_p3.py    CasoBorde
 manim -qh --media_dir "$OUT" escenas_p1-p2.py Complejidad
@@ -68,4 +66,4 @@ ffmpeg -y -f concat -safe 0 -i lista.txt -c copy kahn_final.mp4 < /dev/null
 
 rm -rf "$OUT/videos"
 echo ""
-echo "Proceso terminado, video final en: $OUT/kahn_final.mp4 ==="
+echo "Proceso terminado, video final en: $OUT/kahn_final.mp4"
