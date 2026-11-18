@@ -86,6 +86,39 @@ pip install manim
     >manim --version
     >```
 
+## Estructura resultante del repositorio 
+
+```
+AED_Algoritmo_de_Kahn/
+├── animacion/
+│   ├── escenas_p1-p2.py
+│   ├── escenas_p3.py
+│   ├── build_video.sh
+│   ├── trace.json
+│   ├── trace_cycle.json
+│   └── video/
+│       ├── 01_intro.mp4
+│       ├── 02_idea.mp4
+│       ├── 03_demo.mp4
+│       ├── 04_caso_borde.mp4
+│       ├── 05_complejidad.mp4
+│       ├── 06_creditos.mp4
+│       ├── kahn_final.mp4
+│       └── lista.txt
+├── informe/
+│   ├── main.tex
+│   └── Algoritmos_y_Estructuras_de_Datos___Informe_Proyecto_2.pdf
+├── .gitignore
+├── README.md
+├── main.cpp
+├── graph.cpp
+├── int_queue.cpp
+├── kahn.cpp
+├── tests.cpp
+├── trace.cpp
+└── kahn_interface.hpp
+```
+
 ## Video y repositorio
 
 ...
